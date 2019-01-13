@@ -1,0 +1,465 @@
+# Important: Don't mess up bug and bug report. They're different things.
+# Example: https://bugzilla.redhat.com/rest/bug/1661193
+---
+openapi: '3.0.0'
+info:
+  title: Bugzilla API
+  description: >
+    Bugzilla is free and open source web-based bug-tracking software that is
+    developed by an active group of volunteers in the Mozilla community, and
+    used by thousands of projects and companies around the world. It can be
+    installed on Linux and other flavors of Unix, Windows or Mac OS X.
+  contact:
+    email: stephen@that.guru
+  license:
+    name: Mozilla Public License, v. 2.0
+    url: http://mozilla.org/MPL/2.0
+  version: '1.0'
+servers:
+- url: https://bugzilla.mozilla.org/rest
+  description: Mozilla Server
+- url: https://bugzilla.redhat.com/rest
+  description: RedHat Server
+paths:
+  /bug:
+    get:
+      description: List bug reports.
+      operationId: bugs_list
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - in: query
+          name: project
+          description: An ID or linkname of a project to filter bundles by.
+          schema:
+            title: ''
+            type: string
+        - in: query
+          name: owner
+          description: An ID or username of a user to filter bundles by.
+          schema:
+            title: ''
+            type: string
+        - in: query
+          name: public
+          description: Show only public (`true`) or private (`false`) bundles.
+          schema:
+            title: ''
+            type: string
+            enum:
+              - 'true'
+              - 'false'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BugReports'
+      tags:
+        - bundles
+  /bug/{id}:
+    get:
+      description: Show a bug report.
+      operationId: bugs_read
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: A unique integer value identifying this bug report.
+          schema:
+            title: ID
+            type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BugReports'
+        # '404':
+        #   description: Not found
+        #   content:
+        #     application/json:
+        #       schema:
+        #         $ref: '#/components/schemas/Error'
+      tags:
+        - bug
+components:
+  parameters:
+    Limit:
+      in: query
+      name: limit
+      description: Number of results to return per page.
+      schema:
+        title: Limit
+        type: integer
+  schemas:
+    BugReports:
+      type: array
+      items:
+        type: object
+        properties:
+          bugs:
+            title: Bugs
+            type: array
+            items:
+              $ref: '#/components/schemas/BugReport'
+    BugReport:
+      type: array
+      items:
+        type: object
+        properties:
+          alias:
+            title: Alias
+            type: array
+            items:
+              type: string
+          assigned_to:
+            title: Assigned To
+            description: Name of the person responsible for fixing the bug.
+            type: string
+          assigned_to_detail:
+            title: Assigned To Detail
+            description: Expanded information about the person responsible for fixing the bug.
+            allOf:
+              - $ref: '#/components/schemas/Person'
+          # TODO: figure out what this looks like
+          attachments:
+            title: Attachments
+            description: An optional list of attachments associated with this bug report.
+            type: array
+            items:
+              type: string
+          blocks:
+            title: Blocks
+            description: A list of other bug reports which cannot be resolved before this bug report has been resolved.
+            type: array
+            items:
+              type: integer
+          cc:
+            title: CC
+            description: A list of names of people who get mail when the bug report changes.
+            type: string
+          cc_detail:
+            title: CC Detail
+            description: A list of expanded information about the people who get mail when the bug report changes.
+            type: array
+            items:
+              $ref: '#/components/schemas/Person'
+
+          # WTF are all these?
+          cf_atomic:
+            title: CF Atomic
+            type: string
+          cf_category:
+            title: CF Category
+            type: string
+          cf_clone_of:
+            title: CF Clone Of
+            type: string
+          cf_cloudforms_team:
+            title: CF Cloudforms Team
+            type: string
+          cf_crm:
+            title: CF Crm
+            type: string
+          cf_doc_type:
+            title: CF Doc Type
+            type: string
+          cf_documentation_action:
+            title: CF Documentation Action
+            type: string
+          cf_environment:
+            title: CF Environment
+            type: string
+          cf_fixed_in:
+            title: CF Fixed In
+            type: string
+          cf_last_closed:
+            title: CF Last Closed
+            type: string
+          cf_mount_type:
+            title: CF Mount Type
+            type: string
+          cf_ovirt_team:
+            title: CF Ovirt Team
+            type: string
+          cf_regression_status:
+            title: CF Regression Status
+            type: string
+          cf_release_notes:
+            title: CF Release Notes
+            type: string
+          cf_story_points:
+            title: CF Story Points
+            type: string
+          cf_type:
+            title: CF Type
+            type: string
+          cf_verified_branch:
+            title: CF Verified Branch
+            type: string
+
+          # What does this mean?
+          classification:
+            title: Classification
+            type: string
+          comments:
+            title: Comments
+            type: array
+            items:
+              $ref: '#/components/schemas/Comment'
+          component:
+            title: Component
+            description: A list of components to which this bug report applies.
+            type: array
+            items:
+              type: string
+          creation_time:
+            title: Creation Time
+            description: Timestamp for when this bug report was initially created.
+            type: string
+            format: date-time
+          creator:
+            title: Creator
+            description: Name of the person that created this bug report.
+            type: string
+          creator_detail:
+            title: Creator Detail
+            description: Expanded information about the person that created this bug report.
+            allOf:
+              - $ref: '#/components/schemas/Person'
+          # TODO: This should be self-explanatory, but what's the actual definition?
+          deadline:
+            title: Deadline
+            type: string
+            nullable: true
+          depends_on:
+            title: Depends On
+            description: A list of other bug reports that must be resolved before this bug report can be resolved.
+            type: array
+            items:
+              type: integer
+          description:
+            title: Description
+            description: The description of the bug.
+            type: string
+          # Weird that there's no docs_contact_detail field here. Is it ommitted if docs contact is unset?
+          docs_contact:
+            title: Docs Contact
+            type: string
+          dupe_of:
+            title: Dupe Of
+            description: If this bug report has been closed as a duplicate, the ID of the bug report it was marked as a duplicate of.
+            type: integer
+            nullable: true
+          # TODO: describe
+          flags:
+            title: Flags
+            type: array
+            items:
+              type: string
+          # TODO: describe
+          groups:
+            title: Groups
+            type: array
+            items:
+              type: string
+          id:
+            title: Id
+            description: The ID of the bug report.
+            type: integer
+          # TODO: describe
+          is_cc_accessible:
+            title: Is CC Accessible
+            type: boolean
+          # TODO: describe
+          is_confirmed:
+            title: Is Confirmed
+            type: boolean
+          # TODO: describe
+          is_creator_accessible:
+            title: Is Creator Accessible
+            type: boolean
+          is_open:
+            title: Is Open
+            description: True if the bug report is open, else False.
+            type: boolean
+          keywords:
+            title: Keywords
+            description: A list of keywords associated with this bug report.
+            type: array
+            items:
+                type: string
+          last_change_time:
+            title: Last Change Time
+            description: Timestamp for when this bug report was last changed.
+            type: string
+            format: date-time
+          op_sys:
+            title: Op Sys
+            description: The operating system the bug applies to.
+            type: string
+          platform:
+            title: Platform
+            description: The platform the bug applies to.
+            type: string
+          priority:
+            title: Priority
+            description: The priority of the bug report.
+            type: string
+            enum:
+              - unspecified
+              - urgent
+              - high
+              - medium
+              - low
+          product:
+            title: Product
+            description: The product or suite of products this bug applies to.
+            type: string
+          qa_contact:
+            title: QA Contact
+            description: Name of the person from QA assigned to this bug report.
+            type: string
+          qa_contact_detail:
+            title: QA Contact Detail
+            description: Expanded information about the person from QA assigned to this bug report.
+            allOf:
+              - $ref: '#/components/schemas/Person'
+          # TODO: Are these upper or lower case? Are they instance dependent?
+          resolution:
+            title: Resolution
+            description: If the bug report is closed, the reason it was closed.
+            type: string
+            enum:
+              - NOTABUG
+              - WONTFIX
+              - DEFERRED
+              - WORKSFORME
+              - CURRENTRELEASE
+              - RAWHIDE
+              - ERRATA
+              - DUPLICATE
+          # TODO: What does this look like?
+          see_also:
+            title: See Also
+            type: array
+            items:
+              type: string
+          severity:
+            title: Severity
+            description: The severity of the bug report.
+            type: string
+            enum:
+              - unspecified
+              - urgent
+              - high
+              - medium
+              - low
+          status:
+            title: Status
+            type: string
+            enum:
+              - NEW
+              - ASSIGNED
+              - POST
+              - MODIFIED
+              - ON_DEV
+              - ON_QA
+              - VERIFIED
+              - RELEASE_PENDING
+              - CLOSED
+          # TODO: What does this look like? It's an object, anyway.
+          sub_components:
+            title: Sub-Components
+            type: string
+          summary:
+            title: Summary
+            description: A summary of the bug report.
+            type: string
+          target_milestone:
+            title: Target Milestone
+            description: The release milestone the fix for this bug is targetted for.
+            type: string
+          target_release:
+            title: Target Release
+            description: The release the fix for this bug is targetted for.
+            type: string
+          url:
+            title: URL
+            type: string
+          version:
+            title: Version
+            description: A list of versions this bug report applies to.
+            type: array
+            items:
+              type: string
+          whiteboard:
+            title: Whiteboard
+            description: A freeform field, typically used for external tooling.
+            type: string
+    Comment:
+      type: object
+      properties:
+        id:
+          title: ID
+          description: The ID of the comment.
+          type: integer
+        bug_id:
+          title: Bug ID
+          description: The ID of the parent bug.
+          type: integer
+        # TODO: What is this?
+        count:
+          title: Count
+          type: integer
+        attachment_id:
+          title: Attachment ID
+          description: An optional list of attachments associated with this comment.
+          type: array
+          items:
+            type: integer
+          nullable: true
+        creation_time:
+          title: Creation Time
+          description: Timestamp for when this comment was initially created.
+          type: string
+          format: date-time
+        creator:
+          title: Creator
+          description: Name of the person that created this comment.
+          type: string
+        creator_id:
+          title: Creator ID
+          description: ID of the person that created this comment.
+          type: integer
+        is_private:
+          title: Is Private
+          description: If true, the comment is marked as private.
+          type: boolean
+        text:
+          title: Text
+          description: The body of the comment.
+          type: string
+        # TODO: Are these editable? If not, how does this differ from the 'creation_time'?
+        time:
+          title: Time
+          type: string
+          format: date-time
+    Person:
+      type: object
+      properties:
+        id:
+          title: ID
+          type: integer
+        email:
+          title: Email
+          type: string
+          format: email
+        name:
+          title: Name
+          type: string
+        real_name:
+          title: Real Name
+          type: string
