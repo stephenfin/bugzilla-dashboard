@@ -38,3 +38,9 @@ To Do
 - Make filters applied via the filter dialog persistent
 - Stop defaulting to my username and ask users what they want
 - Add additional products besides `openstack-nova`
+
+Useful resources
+----------------
+
+- [Bugzilla REST API documentation](https://bugzilla.readthedocs.io/en/latest/api/core/v1/)
+- [Axios Tutorial](https://flaviocopes.com/axios/)
