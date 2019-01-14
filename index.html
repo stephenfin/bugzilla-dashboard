@@ -101,7 +101,7 @@
           <i class="fas fa-filter"></i>
         </button>
 
-        <search-modal v-if="showSearchModal" @close="search"></search-modal>
+        <search-modal v-if="showSearchModal" v-bind:username="username" @close="search"></search-modal>
         <vue-snotify></vue-snotify>
       </div>
     </script>
@@ -122,7 +122,7 @@
                     </label>
                   </div>
                   <div class="md:w-2/3">
-                    <input class="bg-grey-lighter appearance-none border-2 border-grey-lighter rounded w-full py-2 px-4 text-grey-darker leading-tight focus:outline-none focus:bg-white focus:border-purple" id="inline-username" type="text" v-model="username">
+                    <input class="bg-grey-lighter appearance-none border-2 border-grey-lighter rounded w-full py-2 px-4 text-grey-darker leading-tight focus:outline-none focus:bg-white focus:border-purple" id="inline-username" type="text" :value="username" v-model="username">
                   </div>
                 </div>
 
@@ -171,9 +171,12 @@
 
         Vue.component('search-modal', {
           template: '#search-modal-template',
+          props: {
+            username: String,
+          },
           data: function () {
             return {
-              username: null,
+              username: this.username,
               release: null,
             }
           }
