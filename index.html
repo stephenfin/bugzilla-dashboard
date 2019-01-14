@@ -249,7 +249,7 @@
                 'done': [],
               }
 
-              let uri = 'https://bugzilla.redhat.com/rest/bug?product=Red%20Hat%20OpenStack&component=openstack-nova&include_fields=id,summary,status,assigned_to,last_change_time,target_release,keywords&status=NEW&status=ASSIGNED&status=ON_DEV&status=POST&status=MODIFIED&status=ON_QA&status=VERIFIED'
+              let uri = 'https://bugzilla.redhat.com/rest/bug?product=Red%20Hat%20OpenStack&component=openstack-nova&component=python-os-vif&include_fields=id,summary,status,assigned_to,last_change_time,target_release,keywords&status=NEW&status=ASSIGNED&status=ON_DEV&status=POST&status=MODIFIED&status=ON_QA&status=VERIFIED'
 
               uri += '&assigned_to=' + encodeURIComponent(username + '@redhat.com');
               if (release)

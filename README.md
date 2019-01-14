@@ -1,8 +1,6 @@
 Bugzilla Dashboard
 ==================
 
-**WIP!**
-
 A simple dashboard to track my downstream (Red Hat) bugs for OpenStack nova and
 related projects. Information retrieved using the [Bugzilla 5 REST
 API](https://bugzilla.readthedocs.io/en/latest/api/). If you don't work in my
@@ -46,11 +44,6 @@ CORS on the REST API. You can resolve the former by:
 
 The latter is still a WIP though and needs to be resolved by the admins of the
 Red Hat Bugzilla instance.
-
-To Do
------
-
-- Add additional products besides `openstack-nova`
 
 Useful resources
 ----------------
