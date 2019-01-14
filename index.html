@@ -101,7 +101,7 @@
           <i class="fas fa-filter"></i>
         </button>
 
-        <search-modal v-if="showSearchModal" v-bind:username="username" @close="search"></search-modal>
+        <search-modal v-if="showSearchModal" v-bind:username="username" v-bind:release="release" @close="search"></search-modal>
         <vue-snotify></vue-snotify>
       </div>
     </script>
@@ -135,20 +135,7 @@
                   <div class="md:w-2/3">
                     <div class="relative">
                       <select class="block appearance-none w-full bg-grey-lighter border border-grey-lighter text-grey-darker py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-grey" id="grid-state" v-model="release">
-                        <option selected>---</option>
-                        <option>6.0 (Juno)</option>
-                        <option>7.0 (Kilo)</option>
-                        <option>8.0 (Liberty)</option>
-                        <option>9.0 (Mitaka)</option>
-                        <option>10.0 (Newton)</option>
-                        <option>11.0 (Ocata)</option>
-                        <option>12.0 (Pike)</option>
-                        <option>13.0 (Queens)</option>
-                        <option>14.0 (Rocky)</option>
-                        <option>15.0 (Stein)</option>
-                        <option>16.0 (T)</option>
-                        <option>17.0 (U)</option>
-                        <option>Installer</option>
+                        <option v-for="rel in releases" :selected="release === rel">{{ rel }}</option>
                       </select>
                       <div class="pointer-events-none absolute pin-y pin-r flex items-center px-2 text-grey-darker">
                         <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
@@ -173,11 +160,29 @@
           template: '#search-modal-template',
           props: {
             username: String,
+            release: String,
           },
           data: function () {
             return {
               username: this.username,
-              release: null,
+              release: this.release,
+              releases: [
+                '',
+                '---',
+                '6.0 (Juno)',
+                '7.0 (Kilo)',
+                '8.0 (Liberty)',
+                '9.0 (Mitaka)',
+                '10.0 (Newton)',
+                '11.0 (Ocata)',
+                '12.0 (Pike)',
+                '13.0 (Queens)',
+                '14.0 (Rocky)',
+                '15.0 (Stein)',
+                '16.0 (T)',
+                '17.0 (U)',
+                'Installer',
+              ],
             }
           }
         });
