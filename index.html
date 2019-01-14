@@ -56,7 +56,7 @@
             <div v-for="bug in bugs" class="max-w-sm rounded overflow-hidden bg-grey-lightest mb-2">
               <div class="px-6 pt-4">
                 <a :href="'https://bugzilla.redhat.com/' + bug.id" target="_blank" class="no-underline text-black hover:text-grey-dark">
-                  <h3 class="font-bold text-lg">{{ bug.summary }}</h3>
+                  <h3 class="font-medium text-lg"><span class="font-semibold">#{{ bug.id }}</span>, {{ bug.summary }}</h3>
                 </a>
               </div>
               <div class="px-6 py-4">
