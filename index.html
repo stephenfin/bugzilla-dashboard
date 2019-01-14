@@ -225,7 +225,7 @@
           methods: {
             search: function (username, release) {
               /* We require a username. If that wasn't supplied, show the search modal again */
-              if (username === null) {
+              if (!username || 0 === username.length) {
                 this.showSearchModal = true;
                 return;
               }
@@ -234,7 +234,7 @@
               this.showSearchModal = false;
 
               query = { username: username }
-              if (release !== null)
+              if (release && 0 !== release.length)
                 query.release = release
 
               this.$router.push({ name: 'index', query: query })
