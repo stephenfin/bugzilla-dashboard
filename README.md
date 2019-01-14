@@ -40,10 +40,12 @@ This uses `vue-router`, meaning you need to deploy behind a server. Python's
 Note, however, that this still won't work due to the hardcoded index URL and
 CORS on the REST API. You can resolve the former by:
 
-    $ sed s/\/~sfinucan\/bug-dashboard// index.html
+    $ sed -i 's/\/~sfinucan\/bug-dashboard//' index.html
 
 The latter is still a WIP though and needs to be resolved by the admins of the
-Red Hat Bugzilla instance.
+[Red Hat instance](https://bugzilla.redhat.com/show_bug.cgi?id=1666031). We
+could investigate the use of JSONP but axios [does not support this
+natively](https://github.com/axios/axios/blob/master/COOKBOOK.md#jsonp).
 
 Useful resources
 ----------------
