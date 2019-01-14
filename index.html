@@ -95,15 +95,15 @@
           </div>
         </div>
 
-        <button id="show-modal" class="float" @click="showModal = true">
+        <button id="show-search-modal" class="float" @click="showSearchModal = true">
           <i class="fas fa-filter"></i>
         </button>
 
-        <modal v-if="showModal" @close="search"></modal>
+        <search-modal v-if="showSearchModal" @close="search"></search-modal>
       </div>
     </script>
 
-    <script type="text/x-template" id="modal-template">
+    <script type="text/x-template" id="search-modal-template">
       <transition name="modal">
         <div class="modal-mask flex flex-col items-center justify-center font-sans">
           <div class="h-screen w-full absolute flex items-center justify-center bg-modal">
@@ -164,8 +164,8 @@
     </script>
 
     <script>
-        Vue.component('modal', {
-          template: '#modal-template',
+        Vue.component('search-modal', {
+          template: '#search-modal-template',
           data: function () {
             return {
               username: null,
@@ -201,7 +201,7 @@
                 'inprogress': [],
                 'done': [],
               },
-              showModal: false,
+              showSearchModal: false,
             }
           },
           filters: {
@@ -211,14 +211,14 @@
           },
           methods: {
             search: function (username, release) {
-              /* We require a username. If that wasn't supplied, show the modal again */
+              /* We require a username. If that wasn't supplied, show the search modal again */
               if (username === null) {
-                this.showModal = true;
+                this.showSearchModal = true;
                 return;
               }
 
-              /* Hide the modal and update the URL */
-              this.showModal = false;
+              /* Hide the search modal and update the URL */
+              this.showSearchModal = false;
 
               query = { username: username }
               if (release !== null)
@@ -286,7 +286,7 @@
           },
           mounted () {
             if (this.$props.username == null) {
-              this.showModal = true;
+              this.showSearchModal = true;
               return;
             }
 
