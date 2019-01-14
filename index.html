@@ -35,20 +35,7 @@
   </head>
   <body>
     <div id="app">
-      <div class="px-2 pb-5">
-        <div id="board" class="flex flex-wrap -mx-2">
-          <column title="Backlog" :bugs="bugs.backlog"></column>
-          <column title="Ready" :bugs="bugs.ready"></column>
-          <column title="In Progress" :bugs="bugs.inprogress"></column>
-          <column title="Done" :bugs="bugs.done"></column>
-        </div>
-      </div>
-
-      <button id="show-modal" class="float" @click="showModal = true">
-        <i class="fas fa-filter"></i>
-      </button>
-
-      <modal v-if="showModal" @close="search"></modal>
+      <router-view></router-view>
     </div>
 
     <script src="https://unpkg.com/vue"></script>
@@ -94,6 +81,25 @@
             </div>
           </div>
         </div>
+      </div>
+    </script>
+
+    <script type="text/x-template" id="board-template">
+      <div>
+        <div class="px-2 pb-5">
+          <div id="board" class="flex flex-wrap -mx-2">
+            <column title="Backlog" :bugs="bugs.backlog"></column>
+            <column title="Ready" :bugs="bugs.ready"></column>
+            <column title="In Progress" :bugs="bugs.inprogress"></column>
+            <column title="Done" :bugs="bugs.done"></column>
+          </div>
+        </div>
+
+        <button id="show-modal" class="float" @click="showModal = true">
+          <i class="fas fa-filter"></i>
+        </button>
+
+        <modal v-if="showModal" @close="search"></modal>
       </div>
     </script>
 
@@ -181,38 +187,46 @@
           }
         });
 
-        var router = new VueRouter({
-          mode: 'history',
-          routes: []
-        });
-
-        new Vue({
-          router,
-          el: '#app',
-          data: {
-            username: 'sfinucan',
-            release: null,
-            bugs: {
-              'backlog': [],
-              'ready': [],
-              'inprogress': [],
-              'done': [],
-            },
-            showModal: false
+        const Board = {
+          template: '#board-template',
+          props: {
+            username: String,
+            release: String,
+          },
+          data: function () {
+            return {
+              bugs: {
+                'backlog': [],
+                'ready': [],
+                'inprogress': [],
+                'done': [],
+              },
+              showModal: false,
+            }
+          },
+          filters: {
+            moment: function (date) {
+              return moment(date).fromNow();
+            }
           },
           methods: {
             search: function (username, release) {
+              /* We require a username. If that wasn't supplied, show the modal again */
+              if (username === null) {
+                this.showModal = true;
+                return;
+              }
+
+              /* Hide the modal and update the URL */
               this.showModal = false;
 
-              /* No changes? Don't do anything */
-              if (username === null && release === null)
-                return
+              query = { username: username }
+              if (release !== null)
+                query.release = release
 
-              if (username)
-                this.username = username;
+              this.$router.push({ name: 'index', query: query })
 
-              if (release)
-                this.release = release;
+              console.log('Searching for bugs from user ' + username);
 
               /* Wipe anything that might already be there */
               this.bugs = {
@@ -224,10 +238,9 @@
 
               var uri = 'https://bugzilla.redhat.com/rest/bug?product=Red%20Hat%20OpenStack&component=openstack-nova&include_fields=id,summary,status,assigned_to,last_change_time,target_release,keywords&status=NEW&status=ASSIGNED&status=ON_DEV&status=POST&status=MODIFIED&status=ON_QA&status=VERIFIED'
 
-              uri += '&assigned_to=' + encodeURIComponent(this.username + '@redhat.com');
-
-              if (this.release)
-                uri += '&target_release=' + encodeURIComponent(this.release);
+              uri += '&assigned_to=' + encodeURIComponent(username + '@redhat.com');
+              if (release)
+                uri += '&target_release=' + encodeURIComponent(release);
 
               axios
                 .get(uri)
@@ -272,14 +285,35 @@
             }
           },
           mounted () {
-            if (this.$route.query.username)
-              this.username = this.$route.query.username;
-
-            if (this.$route.query.release)
-              this.release = this.$route.query.release;
+            if (this.$props.username == null) {
+              this.showModal = true;
+              return;
+            }
 
             this.search(this.username, this.release);
           }
+        };
+
+        var router = new VueRouter({
+          mode: 'history',
+          routes: [
+            {
+              name: 'index',
+              path: '/~sfinucan/bug-dashboard/',
+              component: Board,
+              props: (route) => ({
+                username: route.query.username,
+                release: route.query.release
+              }),
+              pathToRegexpOptions: { strict: true },
+            },
+            { path: '*', redirect: '/~sfinucan/bug-dashboard/' },
+          ],
+        });
+
+        new Vue({
+          router,
+          el: '#app'
         });
     </script>
   </body>
