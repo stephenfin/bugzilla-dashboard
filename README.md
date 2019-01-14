@@ -50,8 +50,6 @@ Red Hat Bugzilla instance.
 To Do
 -----
 
-- Show loading dialog when results are loading
-- Display warnings if no results found (usually a typo)
 - Add additional products besides `openstack-nova`
 
 Useful resources

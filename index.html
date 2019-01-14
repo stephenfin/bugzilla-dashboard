@@ -41,6 +41,7 @@
     <!-- <script src="https://unpkg.com/vue"></script> -->
     <script src="https://unpkg.com/vue/dist/vue.min.js"></script>
     <script src="https://unpkg.com/vue-router/dist/vue-router.min.js"></script>
+    <script src="https://unpkg.com/vue-toasted/dist/vue-toasted.min.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://unpkg.com/moment/min/moment.min.js"></script>
 
@@ -101,6 +102,7 @@
         </button>
 
         <search-modal v-if="showSearchModal" @close="search"></search-modal>
+        <vue-snotify></vue-snotify>
       </div>
     </script>
 
@@ -165,6 +167,8 @@
     </script>
 
     <script>
+        Vue.use(Toasted)
+
         Vue.component('search-modal', {
           template: '#search-modal-template',
           data: function () {
@@ -237,15 +241,49 @@
                 'done': [],
               }
 
-              var uri = 'https://bugzilla.redhat.com/rest/bug?product=Red%20Hat%20OpenStack&component=openstack-nova&include_fields=id,summary,status,assigned_to,last_change_time,target_release,keywords&status=NEW&status=ASSIGNED&status=ON_DEV&status=POST&status=MODIFIED&status=ON_QA&status=VERIFIED'
+              let uri = 'https://bugzilla.redhat.com/rest/bug?product=Red%20Hat%20OpenStack&component=openstack-nova&include_fields=id,summary,status,assigned_to,last_change_time,target_release,keywords&status=NEW&status=ASSIGNED&status=ON_DEV&status=POST&status=MODIFIED&status=ON_QA&status=VERIFIED'
 
               uri += '&assigned_to=' + encodeURIComponent(username + '@redhat.com');
               if (release)
                 uri += '&target_release=' + encodeURIComponent(release);
 
+              let searchToast = this.$toasted.show('Searching for bugs...', {
+                position: 'bottom-left',
+                iconPack: 'fontawesome',
+                theme: 'outline',
+                icon: 'spinner',
+                action : {
+                  text : 'Dismiss',
+                  onClick : (e, toastObject) => {
+                    toastObject.goAway(0);
+                  }
+                },
+              });
+
               axios
                 .get(uri)
                 .then(response => {
+                  if (response.data.bugs.length === 0) {
+                    searchToast.goAway();
+
+                    this.$toasted.error('No results found!', {
+                      position: 'bottom-left',
+                      iconPack: 'fontawesome',
+                      theme: 'outline',
+                      icon: 'exclamation-circle',
+                      duration: 2000,
+                      action : {
+                        text : 'Dismiss',
+                        onClick : (e, toastObject) => {
+                          toastObject.goAway(0);
+                        }
+                      },
+                    });
+                    return;
+                  }
+
+                  let bugCount = 0;
+
                   /* Split bugs into buckets */
                   for (var i = 0; i < response.data.bugs.length; i++) {
                     var bug = response.data.bugs[i];
@@ -253,6 +291,8 @@
                     /* Skip RFEs. We have to do this client side since there doesn't appear to be a way to do this via the API. */
                     if (bug.keywords.includes("FutureFeature"))
                       continue;
+
+                    bugCount++;
 
                     switch (bug.status) {
                       case 'NEW':
@@ -282,6 +322,39 @@
                       return moment(a.last_change_time).isBefore(b.last_change_time);
                     })
                   }
+
+                  searchToast.goAway();
+
+                  this.$toasted.show('Found ' + String(bugCount) + ' bugs', {
+                    position: 'bottom-left',
+                    iconPack: 'fontawesome',
+                    theme: 'outline',
+                    icon: 'check-circle',
+                    duration: 1500,
+                    action : {
+                      text : 'Dismiss',
+                      onClick : (e, toastObject) => {
+                        toastObject.goAway(0);
+                      }
+                    },
+                  });
+                })
+                .catch(function (error) {
+                  searchToast.goAway();
+
+                  this.$toasted.error('Failed to retrieve results!', {
+                    position: 'bottom-left',
+                    iconPack: 'fontawesome',
+                    theme: 'outline',
+                    icon: 'exclamation-circle',
+                    duration: 1500,
+                    action : {
+                      text : 'Dismiss',
+                      onClick : (e, toastObject) => {
+                        toastObject.goAway(0);
+                      }
+                    },
+                  });
                 })
             }
           },
